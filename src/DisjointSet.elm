@@ -64,7 +64,7 @@ union f x y =
         (sx, f') = findSet f x
         (sy, f'') = findSet f' y
 
-        (parent, child) =
+        (child, parent) =
             if sx.rank < sy.rank then
                 (sx, sy)
             else
