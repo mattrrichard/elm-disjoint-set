@@ -37,9 +37,25 @@ find f x =
     in
         (set.parentId, f')
 
+
 findSet : DisjointSet -> Int -> (Set, DisjointSet)
-findSet f x =
-    Debug.crash "TODO"
+findSet (Forest arr) x =
+    let
+        -- if an invalid id is asked for, just return a new set
+        safeGet i arr =
+            case Array.get i arr of
+                Just set -> set
+                Nothing -> initSet i
+
+        set =
+            safeGet x arr
+
+    in
+      -- TODO path compression
+        if set.parentId == x then
+            (set, Forest arr)
+        else
+            findSet (Forest arr) set.parentId
 
 
 union : DisjointSet -> Int -> Int -> DisjointSet
