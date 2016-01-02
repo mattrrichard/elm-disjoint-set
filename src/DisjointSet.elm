@@ -91,7 +91,7 @@ union x y f =
                     if p.rank == c.rank then
                         Array.set p.parentId { p | rank = p.rank + 1 } arr
                     else
-                       arr
+                        arr
 
                 c' = { c | parentId = p.parentId }
             in
@@ -101,4 +101,3 @@ union x y f =
 
     in
         Forest (setParent f'' parent child)
-
