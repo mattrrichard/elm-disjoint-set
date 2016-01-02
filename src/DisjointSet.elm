@@ -12,6 +12,7 @@ import Array exposing (Array)
 type DisjointSet =
     Forest (Array Set)
 
+
 type alias Set =
     { rank : Int
     , parentId : Int
@@ -41,10 +42,11 @@ find x f =
 findSet : Int -> DisjointSet -> (Set, DisjointSet)
 findSet x (Forest arr) =
     let
-        -- if an invalid id is asked for, just return a new set
         safeGet i arr =
             case Array.get i arr of
                 Just set -> set
+                -- if an invalid id is asked for, just return a new set
+                -- garbage in, garbage out. not my pig/farm
                 Nothing -> initSet i
 
         set =
@@ -83,6 +85,9 @@ union x y f =
         setParent (Forest arr) p c =
             let
                 arr' =
+                    -- becase we always attach the smaller tree to the root
+                    -- of the bigger tree, the size only grows if they were the
+                    -- same size.  In that case, increment the parent tree's rank
                     if p.rank == c.rank then
                         Array.set p.parentId { p | rank = p.rank + 1 } arr
                     else
@@ -90,6 +95,8 @@ union x y f =
 
                 c' = { c | parentId = p.parentId }
             in
+                -- since this only operates on tree roots,
+                -- the parentId is the same as the index
                 Array.set c.parentId c' arr'
 
     in
