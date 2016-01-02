@@ -50,12 +50,22 @@ findSet (Forest arr) x =
         set =
             safeGet x arr
 
+        compress set id (root, Forest arr) =
+            let
+                set' = { set | parentId = root.parentId }
+                arr' =
+                    if root.parentId /= set.parentId then
+                        Array.set id set' arr
+                    else
+                        arr
+            in
+                (root, Forest arr')
     in
-      -- TODO path compression
         if set.parentId == x then
             (set, Forest arr)
         else
             findSet (Forest arr) set.parentId
+            |> compress set x
 
 
 union : DisjointSet -> Int -> Int -> DisjointSet
