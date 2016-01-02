@@ -30,16 +30,16 @@ initSet id =
     }
 
 
-find : DisjointSet -> Int -> (Int, DisjointSet)
-find f x =
+find : Int -> DisjointSet -> (Int, DisjointSet)
+find x f =
     let
-        (set, f') = findSet f x
+        (set, f') = findSet x f
     in
         (set.parentId, f')
 
 
-findSet : DisjointSet -> Int -> (Set, DisjointSet)
-findSet (Forest arr) x =
+findSet : Int -> DisjointSet -> (Set, DisjointSet)
+findSet x (Forest arr) =
     let
         -- if an invalid id is asked for, just return a new set
         safeGet i arr =
@@ -64,18 +64,18 @@ findSet (Forest arr) x =
         if set.parentId == x then
             (set, Forest arr)
         else
-            findSet (Forest arr) set.parentId
+            findSet set.parentId (Forest arr)
             |> compress set x
 
 
-union : DisjointSet -> Int -> Int -> DisjointSet
-union f x y =
+union : Int -> Int -> DisjointSet -> DisjointSet
+union x y f =
     let
-        (sx, f') = findSet f x
-        (sy, f'') = findSet f' y
+        (sx, f') = findSet x f
+        (sy, f'') = findSet y f'
 
-        (child, parent) =
-            if sx.rank < sy.rank then
+        (parent, child) =
+            if sx.rank > sy.rank then
                 (sx, sy)
             else
                 (sy, sx)

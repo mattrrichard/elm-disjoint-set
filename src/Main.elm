@@ -108,7 +108,7 @@ updateSetMembership model =
     let
         updateTile tile sets =
             let
-                (setId, sets') = DSet.find sets tile.id
+                (setId, sets') = DSet.find tile.id sets
             in
                 ({ tile | setId = setId }, sets')
 
@@ -141,7 +141,7 @@ handleClick tileId model =
 
         (tileId, Just picked) ->
             let
-                sets = DSet.union model.sets tileId picked
+                sets = DSet.union tileId picked model.sets
 
                 model' = { model | picked = Nothing}
             in
