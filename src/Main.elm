@@ -4,4 +4,6 @@ import Graphics.Element
 
 
 main : Graphics.Element.Element
-main = Graphics.Element.show "yo"
+main =
+    Debug.crash "TODO"
+
