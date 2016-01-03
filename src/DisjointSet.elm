@@ -100,4 +100,7 @@ union x y f =
                 Array.set c.parentId c' arr'
 
     in
-        Forest (setParent f'' parent child)
+        if sx.parentId == sy.parentId then
+            f''
+        else
+            Forest (setParent f'' parent child)
