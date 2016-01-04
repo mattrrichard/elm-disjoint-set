@@ -54,10 +54,9 @@ findSet x (Forest arr) =
 
         compress set id (root, Forest arr) =
             let
-                set' = { set | parentId = root.parentId }
                 arr' =
                     if root.parentId /= set.parentId then
-                        Array.set id set' arr
+                        Array.set id { set | parentId = root.parentId } arr
                     else
                         arr
             in
@@ -70,20 +69,25 @@ findSet x (Forest arr) =
             |> compress set x
 
 
+
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
     let
         (sx, f') = findSet x f
         (sy, f'') = findSet y f'
 
-        (parent, child) =
-            if sx.rank > sy.rank then
-                (sx, sy)
-            else
-                (sy, sx)
-
-        setParent (Forest arr) p c =
+        (Forest arr) = f''
+    in
+        if sx.parentId == sy.parentId then
+            f''
+        else
             let
+                (p, c) =
+                    if sx.rank >= sy.rank then
+                        (sx, sy)
+                    else
+                        (sy, sx)
+
                 arr' =
                     -- becase we always attach the smaller tree to the root
                     -- of the bigger tree, the size only grows if they were the
@@ -97,10 +101,4 @@ union x y f =
             in
                 -- since this only operates on tree roots,
                 -- the parentId is the same as the index
-                Array.set c.parentId c' arr'
-
-    in
-        if sx.parentId == sy.parentId then
-            f''
-        else
-            Forest (setParent f'' parent child)
+                Forest (Array.set c.parentId c' arr')

@@ -141,11 +141,12 @@ handleClick tileId model =
 
         (tileId, Just picked) ->
             let
-                sets = DSet.union tileId picked model.sets
-
                 model' = { model | picked = Nothing}
             in
-                if tileId == picked then
-                    model'
-                else
-                    updateSetMembership { model' | sets = sets }
+              if tileId == picked then
+                  model'
+              else
+                  let
+                        sets = DSet.union tileId picked model.sets
+                    in
+                        updateSetMembership { model' | sets = sets }
