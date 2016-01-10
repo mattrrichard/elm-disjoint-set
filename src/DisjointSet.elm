@@ -1,16 +1,10 @@
-module DisjointSet
-    ( DisjointSet
-    , init
-    , find
-    , union
-    ) where
-
+module DisjointSet (DisjointSet, init, find, union) where
 
 import Array exposing (Array)
 
 
-type DisjointSet =
-    Forest (Array Set)
+type DisjointSet
+    = Forest (Array Set)
 
 
 type alias Set =
@@ -31,28 +25,31 @@ initSet id =
     }
 
 
-find : Int -> DisjointSet -> (Int, DisjointSet)
+find : Int -> DisjointSet -> ( Int, DisjointSet )
 find x f =
     let
-        (set, f') = findSet x f
+        ( set, f' ) = findSet x f
     in
-        (set.parentId, f')
+        ( set.parentId, f' )
 
 
-findSet : Int -> DisjointSet -> (Set, DisjointSet)
+findSet : Int -> DisjointSet -> ( Set, DisjointSet )
 findSet x (Forest arr) =
     let
         safeGet i arr =
             case Array.get i arr of
-                Just set -> set
+                Just set ->
+                    set
+
                 -- if an invalid id is asked for, just return a new set
                 -- garbage in, garbage out. not my pig/farm
-                Nothing -> initSet i
+                Nothing ->
+                    initSet i
 
         set =
             safeGet x arr
 
-        compress set id (root, Forest arr) =
+        compress set id ( root, Forest arr ) =
             let
                 arr' =
                     if root.parentId /= set.parentId then
@@ -60,21 +57,21 @@ findSet x (Forest arr) =
                     else
                         arr
             in
-                (root, Forest arr')
+                ( root, Forest arr' )
     in
         if set.parentId == x then
-            (set, Forest arr)
+            ( set, Forest arr )
         else
             findSet set.parentId (Forest arr)
-            |> compress set x
-
+                |> compress set x
 
 
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
     let
-        (sx, f') = findSet x f
-        (sy, f'') = findSet y f'
+        ( sx, f' ) = findSet x f
+
+        ( sy, f'' ) = findSet y f'
 
         (Forest arr) = f''
     in
@@ -82,11 +79,11 @@ union x y f =
             f''
         else
             let
-                (p, c) =
+                ( p, c ) =
                     if sx.rank >= sy.rank then
-                        (sx, sy)
+                        ( sx, sy )
                     else
-                        (sy, sx)
+                        ( sy, sx )
 
                 arr' =
                     -- becase we always attach the smaller tree to the root
