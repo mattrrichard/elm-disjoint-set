@@ -1,21 +1,23 @@
-module Main (..) where
+module Main exposing (..)
 
+import Html.App as Html
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import DisjointSet as DSet
 
 
-main : Signal Html
+main : Program Never
 main =
     let
-        mailbox = Signal.mailbox NoOp
-
-        initialModel = init 15 30
-
-        model = Signal.foldp update initialModel mailbox.signal
+        initialModel =
+            init 15 30
     in
-        Signal.map (view mailbox.address) model
+        Html.beginnerProgram
+            { model = initialModel
+            , view = view
+            , update = update
+            }
 
 
 type alias Model =
@@ -41,7 +43,8 @@ init w h =
             , setId = id
             }
 
-        size = w * h
+        size =
+            w * h
 
         makeRows : Int -> List a -> List (List a)
         makeRows k list =
@@ -64,15 +67,14 @@ init w h =
         }
 
 
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : Model -> Html Action
+view model =
     let
         cell tile =
-            td
-                []
+            td []
                 [ input
                     [ type' "button"
-                    , onClick address (Click tile.id)
+                    , onClick (Click tile.id)
                     , value <| toString tile.setId
                     ]
                     []
@@ -81,8 +83,7 @@ view address model =
         row =
             tr [] << List.map cell
     in
-        table
-            []
+        table []
             (List.map row model.tiles)
 
 
@@ -96,7 +97,8 @@ mapWithState f state =
     let
         worker f x ( xs, state ) =
             let
-                ( x', state' ) = f x state
+                ( x', state' ) =
+                    f x state
             in
                 ( x' :: xs, state' )
     in
@@ -108,7 +110,8 @@ updateSetMembership model =
     let
         updateTile tile sets =
             let
-                ( setId, sets' ) = DSet.find tile.id sets
+                ( setId, sets' ) =
+                    DSet.find tile.id sets
             in
                 ( { tile | setId = setId }, sets' )
 
@@ -142,12 +145,14 @@ handleClick tileId model =
 
         ( tileId, Just picked ) ->
             let
-                model' = { model | picked = Nothing }
+                model' =
+                    { model | picked = Nothing }
             in
                 if tileId == picked then
                     model'
                 else
                     let
-                        sets = DSet.union tileId picked model.sets
+                        sets =
+                            DSet.union tileId picked model.sets
                     in
                         updateSetMembership { model' | sets = sets }

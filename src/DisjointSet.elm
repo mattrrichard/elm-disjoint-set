@@ -1,4 +1,4 @@
-module DisjointSet (DisjointSet, init, find, union) where
+module DisjointSet exposing (DisjointSet, init, find, union)
 
 import Array exposing (Array)
 
