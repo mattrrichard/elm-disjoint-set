@@ -1,8 +1,22 @@
 module DisjointSet exposing (DisjointSet, init, find, union)
 
+{-| An implementation of the Disjoint Set data structure
+
+# Disjoint Set
+
+@docs DisjointSet
+
+# Operations
+
+@docs init, find, union
+
+-}
+
 import Array exposing (Array)
 
 
+{-| Data structure containing a set of (initially independent) subsets.
+-}
 type DisjointSet
     = Forest (Array Set)
 
@@ -13,6 +27,11 @@ type alias Set =
     }
 
 
+{-| Create a new DisjointSet of the specified size. The subsets are assigned
+integer ids starting at 0.
+
+    init 8 -- create a disjoint set of 8 independent subsets numbered 0-7
+-}
 init : Int -> DisjointSet
 init n =
     Forest (Array.initialize n initSet)
@@ -32,6 +51,27 @@ invalidSet id =
     { rank = -1
     , parentId = id
     }
+
+
+{-| Find which subset the given id's set belongs to.
+
+    find 2 (init 5) |> fst -- 2
+    find 2 (union 3 2 (init 5)) |> fst -- 3
+
+Note that this function returns a tuple with the first element containg the
+result of the find and the second a new DisjointSet object. This is because
+`find` performs an optimization which changes some internal structure (without
+changing the sets themselves).
+
+For simplicity, if the id asked for is not valid, the result is always that same
+value.
+
+    find 100 (init 5) |> fst -- 100
+
+This behavior may change in the future, but I wanted to avoid muddying the api
+with a `Maybe` result here.
+
+-}
 find : Int -> DisjointSet -> ( Int, DisjointSet )
 find x f =
     let
@@ -70,6 +110,27 @@ findSet x (Forest arr) =
                 |> compress set x
 
 
+{-| Join two subsets into a single subset.
+
+    let
+        set =
+            union 0 1 (init 3)
+
+        ( p0, set' ) =
+            find 0 set
+
+        ( p1, set'' ) =
+            find 1 set'
+
+        ( p1, set''' ) =
+            find 2 set''
+    in
+        ( p0 == p1, p1 == p2 ) -- ( True, False )
+
+In the above example, you can see that keeping up with the set as it updates can
+start to get a little cumbersome. Check out the `DisjointSet.Computation` module
+for some tools that help deal with this.
+-}
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
     let
