@@ -25,6 +25,13 @@ initSet id =
     }
 
 
+-- Create a set with a negative rank. Used to prevent a set with an
+-- out-of-range id from being selected as the parent tree in a union.
+invalidSet : Int -> Set
+invalidSet id =
+    { rank = -1
+    , parentId = id
+    }
 find : Int -> DisjointSet -> ( Int, DisjointSet )
 find x f =
     let
@@ -36,18 +43,15 @@ find x f =
 findSet : Int -> DisjointSet -> ( Set, DisjointSet )
 findSet x (Forest arr) =
     let
-        safeGet i arr =
-            case Array.get i arr of
-                Just set ->
-                    set
-
-                -- if an invalid id is asked for, just return a new set
-                -- garbage in, garbage out. not my pig/farm
-                Nothing ->
-                    initSet i
-
         set =
-            safeGet x arr
+            case Array.get x arr of
+                Just s ->
+                    s
+
+                -- if an invalid id is asked for, return a set with a negative rank so it will
+                -- never be chosen as the parent in a union operation
+                Nothing ->
+                    invalidSet x
 
         compress set id ( root, Forest arr ) =
             let
