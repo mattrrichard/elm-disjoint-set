@@ -127,9 +127,9 @@ findSet x (Forest arr) =
     in
         ( p0 == p1, p1 == p2 ) -- ( True, False )
 
-In the above example, you can see that keeping up with the set as it updates can
-start to get a little cumbersome. Check out the `DisjointSet.Computation` module
-for some tools that help deal with this.
+In the above example, you can see that keeping up with the set as it updates
+across several operations can start to get a little cumbersome. Check out the
+`DisjointSet.Computation` module for some tools that help deal with this.
 -}
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
