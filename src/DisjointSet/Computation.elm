@@ -1,4 +1,5 @@
-module DisjointSet.Computation exposing (Computation, find, union, return, andThen, andThen', eval, eval', mapM, sequence, map, then')
+module DisjointSet.Computation exposing (Computation, find, union, return, andThen, eval, eval', mapM, sequence, map)
+
 {-| Composable "Computation" objects that handle threading the updated DisjointSet object for you.
 
 # Definition
@@ -13,6 +14,7 @@ module DisjointSet.Computation exposing (Computation, find, union, return, andTh
 -}
 
 import DisjointSet as DSet exposing (DisjointSet)
+
 
 {-| Represents a series of operations over a DisjointSet object producing a result of type a.
 That is, a `Computation Int` produces an `Int` when evaluated.
@@ -37,8 +39,8 @@ union a b =
 
 
 {-| -}
-andThen : Computation a -> (a -> Computation b) -> Computation b
-andThen (State s) k =
+andThen : (a -> Computation b) -> Computation a -> Computation b
+andThen k (State s) =
     State
         <| \set ->
             let
@@ -49,10 +51,6 @@ andThen (State s) k =
                     k a
             in
                 k' set'
-
-
-andThen' : (a -> Computation b) -> Computation a -> Computation b
-andThen' = flip andThen
 
 
 {-| -}
@@ -88,11 +86,14 @@ mapM k =
 {-| -}
 map : (a -> b) -> Computation a -> Computation b
 map f a =
-    a `andThen` (f >> return)
+    a |> andThen (f >> return)
+
 
 {-| -}
 map2 : (a -> b -> c) -> Computation a -> Computation b -> Computation c
 map2 f (State fa) (State fb) =
+    -- Part of me hates implementing this at this level since it technically
+    -- could be done in terms of `andThen`, but it gets real ugly, real fast
     State
         <| \set ->
             let
