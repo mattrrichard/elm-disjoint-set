@@ -76,13 +76,7 @@ eval' =
 {-| -}
 sequence : List (Computation a) -> Computation (List a)
 sequence =
-    let
-        k m m' =
-            m `andThen` \x ->
-            m' `andThen` \xs ->
-                return (x :: xs)
-    in
-        List.foldr k (return [])
+    List.foldr (map2 (::)) (return [])
 
 
 {-| -}
@@ -91,6 +85,21 @@ mapM k =
     sequence << List.map k
 
 
+{-| -}
 map : (a -> b) -> Computation a -> Computation b
 map f a =
     a `andThen` (f >> return)
+
+{-| -}
+map2 : (a -> b -> c) -> Computation a -> Computation b -> Computation c
+map2 f (State fa) (State fb) =
+    State
+        <| \set ->
+            let
+                ( a, set' ) =
+                    fa set
+
+                ( b, set'' ) =
+                    fb set'
+            in
+                ( f a b, set'' )
