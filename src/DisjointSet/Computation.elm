@@ -1,15 +1,14 @@
-module DisjointSet.Computation exposing (Computation, find, union, return, andThen, eval, eval', mapM, sequence)
+module DisjointSet.Computation exposing (Computation, find, union, return, andThen, andThen', eval, eval', mapM, sequence, map, then')
 {-| Composable "Computation" objects that handle threading the updated DisjointSet object for you.
 
 # Definition
 @docs Computation, find, union, eval, eval', return
 
 # Composition
-@docs andThen
+@docs andThen, map
 
 # List Helpers
 @docs mapM, sequence
-
 
 -}
 
@@ -52,6 +51,10 @@ andThen (State s) k =
                 k' set'
 
 
+andThen' : (a -> Computation b) -> Computation a -> Computation b
+andThen' = flip andThen
+
+
 {-| -}
 return : a -> Computation a
 return a =
@@ -88,3 +91,6 @@ mapM k =
     sequence << List.map k
 
 
+map : (a -> b) -> Computation a -> Computation b
+map f a =
+    a `andThen` (f >> return)
