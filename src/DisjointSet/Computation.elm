@@ -40,17 +40,17 @@ union a b =
 
 {-| -}
 andThen : (a -> Computation b) -> Computation a -> Computation b
-andThen k (State s) =
+andThen callback (State fa) =
     State
         <| \set ->
             let
-                ( a, set' ) =
-                    s set
+                ( a, newSet ) =
+                    fa set
 
-                (State k') =
-                    k a
+                (State k) =
+                    callback a
             in
-                k' set'
+                k newSet
 
 
 {-| -}
@@ -91,10 +91,10 @@ map2 f (State fa) (State fb) =
     State
         <| \set ->
             let
-                ( a, set' ) =
+                ( a, newSet ) =
                     fa set
 
-                ( b, set'' ) =
-                    fb set'
+                ( b, newSet2 ) =
+                    fb newSet
             in
-                ( f a b, set'' )
+                ( f a b, newSet2 )
