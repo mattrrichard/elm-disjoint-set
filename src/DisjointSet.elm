@@ -44,8 +44,11 @@ initSet id =
     }
 
 
+
 -- Create a set with a negative rank. Used to prevent a set with an
 -- out-of-range id from being selected as the parent tree in a union.
+
+
 invalidSet : Int -> Set
 invalidSet id =
     { rank = -1
@@ -53,13 +56,13 @@ invalidSet id =
     }
 
 
-mapFst : (a->b) -> (a, c) -> (b, c)
-mapFst f (x, y) =
+mapFst : (a -> b) -> ( a, c ) -> ( b, c )
+mapFst f ( x, y ) =
     ( f x, y )
 
 
-mapSnd : (a->b) -> (c, a) -> (c, b)
-mapSnd f (x, y) =
+mapSnd : (a -> b) -> ( c, a ) -> ( c, b )
+mapSnd f ( x, y ) =
     ( x, f y )
 
 
@@ -141,11 +144,14 @@ across several operations can start to get a little cumbersome. Check out the
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
     let
-        ( sx, f2 ) = findSet x f
+        ( sx, f2 ) =
+            findSet x f
 
-        ( sy, f3 ) = findSet y f2
+        ( sy, f3 ) =
+            findSet y f2
 
-        ( Forest arr ) = f3
+        (Forest arr) =
+            f3
     in
         if sx.parentId == sy.parentId then
             f3
@@ -166,7 +172,8 @@ union x y f =
                     else
                         arr
 
-                newChild = { child | parentId = parent.parentId }
+                newChild =
+                    { child | parentId = parent.parentId }
             in
                 -- since this only operates on tree roots,
                 -- the parentId is the same as the index
