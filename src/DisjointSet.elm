@@ -53,6 +53,16 @@ invalidSet id =
     }
 
 
+mapFst : (a->b) -> (a, c) -> (b, c)
+mapFst f (x, y) =
+    ( f x, y )
+
+
+mapSnd : (a->b) -> (c, a) -> (c, b)
+mapSnd f (x, y) =
+    ( x, f y )
+
+
 {-| Find which subset the given id's set belongs to.
 
     find 2 (init 5) |> fst -- 2
@@ -74,10 +84,7 @@ with a `Maybe` result here.
 -}
 find : Int -> DisjointSet -> ( Int, DisjointSet )
 find x f =
-    let
-        ( set, f' ) = findSet x f
-    in
-        ( set.parentId, f' )
+    mapFst .parentId (findSet x f)
 
 
 findSet : Int -> DisjointSet -> ( Set, DisjointSet )
@@ -95,13 +102,13 @@ findSet x (Forest arr) =
 
         compress set id ( root, Forest arr ) =
             let
-                arr' =
+                newArr =
                     if root.parentId /= set.parentId then
                         Array.set id { set | parentId = root.parentId } arr
                     else
                         arr
             in
-                ( root, Forest arr' )
+                ( root, Forest newArr )
     in
         if set.parentId == x then
             ( set, Forest arr )
@@ -116,14 +123,14 @@ findSet x (Forest arr) =
         set =
             union 0 1 (init 3)
 
-        ( p0, set' ) =
+        ( p0, set2 ) =
             find 0 set
 
-        ( p1, set'' ) =
-            find 1 set'
+        ( p1, set3 ) =
+            find 1 set2
 
-        ( p1, set''' ) =
-            find 2 set''
+        ( p1, set4 ) =
+            find 2 set3
     in
         ( p0 == p1, p1 == p2 ) -- ( True, False )
 
@@ -134,33 +141,33 @@ across several operations can start to get a little cumbersome. Check out the
 union : Int -> Int -> DisjointSet -> DisjointSet
 union x y f =
     let
-        ( sx, f' ) = findSet x f
+        ( sx, f2 ) = findSet x f
 
-        ( sy, f'' ) = findSet y f'
+        ( sy, f3 ) = findSet y f2
 
-        (Forest arr) = f''
+        ( Forest arr ) = f3
     in
         if sx.parentId == sy.parentId then
-            f''
+            f3
         else
             let
-                ( p, c ) =
+                ( parent, child ) =
                     if sx.rank >= sy.rank then
                         ( sx, sy )
                     else
                         ( sy, sx )
 
-                arr' =
+                newArr =
                     -- becase we always attach the smaller tree to the root
                     -- of the bigger tree, the size only grows if they were the
                     -- same size.  In that case, increment the parent tree's rank
-                    if p.rank == c.rank then
-                        Array.set p.parentId { p | rank = p.rank + 1 } arr
+                    if parent.rank == child.rank then
+                        Array.set parent.parentId { parent | rank = parent.rank + 1 } arr
                     else
                         arr
 
-                c' = { c | parentId = p.parentId }
+                newChild = { child | parentId = parent.parentId }
             in
                 -- since this only operates on tree roots,
                 -- the parentId is the same as the index
-                Forest (Array.set c.parentId c' arr')
+                Forest (Array.set child.parentId newChild newArr)
