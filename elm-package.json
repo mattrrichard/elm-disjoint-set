@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
     "summary": "Implementation of the DisjointSet data structure",
-    "repository": "https://github.com/user/project.git",
+    "repository": "https://github.com/mattrrichard/elm-disjoint-set.git",
     "license": "BSD3",
     "source-directories": [
         "src"
