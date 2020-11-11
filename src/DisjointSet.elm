@@ -91,19 +91,19 @@ find x f =
 
 
 findSet : Int -> DisjointSet -> ( Set, DisjointSet )
-findSet x (Forest arr) =
+findSet id (Forest array) =
     let
         set =
-            case Array.get x arr of
+            case Array.get id array of
                 Just s ->
                     s
 
                 -- if an invalid id is asked for, return a set with a negative rank so it will
                 -- never be chosen as the parent in a union operation
                 Nothing ->
-                    invalidSet x
+                    invalidSet id
 
-        compress set id ( root, Forest arr ) =
+        compress ( root, Forest arr ) =
             let
                 newArr =
                     if root.parentId /= set.parentId then
@@ -113,11 +113,11 @@ findSet x (Forest arr) =
             in
                 ( root, Forest newArr )
     in
-        if set.parentId == x then
-            ( set, Forest arr )
+        if set.parentId == id then
+            ( set, Forest array )
         else
-            findSet set.parentId (Forest arr)
-                |> compress set x
+            findSet set.parentId (Forest array)
+                |> compress
 
 
 {-| Join two subsets into a single subset.
